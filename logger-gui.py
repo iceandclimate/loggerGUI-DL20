@@ -234,9 +234,9 @@ class MainWindow(QtWidgets.QMainWindow):
             ("record_number",                   ValueDisplay(self, "Record number",                 "",     "%d",   True)),
 
             # ----
-            ("transducer_top",                  ValueDisplay(self, "Transducer top",                "",    "%.0f", True)),
-            ("transducer_bottom",               ValueDisplay(self, "Transducer bottom",             "",    "%.0f", True)),
-            ("temperature_voltage",             ValueDisplay(self, "Temperature (internal)",       "V",    "%d", True)),
+            ("transducer_top",                  ValueDisplay(self, "Transducer top",                "raw",    "%.0f", True)),
+            ("transducer_bottom",               ValueDisplay(self, "Transducer bottom",             "raw",    "%.0f", True)),
+            ("temperature_voltage",             ValueDisplay(self, "Temperature (internal)",       "raw",    "%d", True)),
             ("button",                          ValueDisplay(self, "Button",                        "state",  "%.0f", True)),
             # ----
             ("heading",                         ValueDisplay(self, "Heading",                     "deg",  "%.1f", True)),
@@ -250,8 +250,8 @@ class MainWindow(QtWidgets.QMainWindow):
             ("depth_bottom",                       ValueDisplay(self, "Depth (bottom)",              "m",   "%.2f")),
             ("pressure_bottom",                    ValueDisplay(self, "Pressure (bottom)",              "B",   "%.2f", True)),
             ("temperature_bottom",                 ValueDisplay(self, "Temperature (bottom)",           "C","%d", True)),
-
-
+            # ---- Calculated values ----
+            ("delta_pressure",                          ValueDisplay(self, "ΔP (bottom-top)",           "B","%.3f", True)),
         ])
 
         self.offsets = OrderedDict([
