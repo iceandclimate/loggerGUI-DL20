@@ -243,11 +243,11 @@ class MainWindow(QtWidgets.QMainWindow):
             ("pitch",                           ValueDisplay(self, "Pitch",                       "deg",  "%.2f", True)),
             ("roll",                            ValueDisplay(self, "Roll",                        "deg",  "%.2f", True)),
             # ----
-            ("depth_top",                       ValueDisplay(self, "Depth (top)",                 "m",   "%.2f")),
+            ("depth_top",                       ValueDisplay(self, "AtmDepth (top)",                 "m",   "%.2f")),
             ("pressure_top",                    ValueDisplay(self, "Pressure (top)",              "B",   "%.2f", True)),
             ("temperature_top",                 ValueDisplay(self, "Temperature (top)",           "C","%d", True)),
             # ----
-            ("depth_bottom",                       ValueDisplay(self, "Depth (bottom)",              "m",   "%.2f")),
+            ("depth_bottom",                       ValueDisplay(self, "AtmDepth (bottom)",              "m",   "%.2f")),
             ("pressure_bottom",                    ValueDisplay(self, "Pressure (bottom)",              "B",   "%.2f", True)),
             ("temperature_bottom",                 ValueDisplay(self, "Temperature (bottom)",           "C","%d", True)),
             # ---- Calculated values ----
