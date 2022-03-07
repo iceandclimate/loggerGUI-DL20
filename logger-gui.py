@@ -361,7 +361,8 @@ class MainWindow(QtWidgets.QMainWindow):
         wrap = QtWidgets.QWidget()
         wrap.setLayout(box)
         self.setCentralWidget(wrap)
-
+        self.setWindowTitle("DL20 logger")
+        self.show()
 
         print("Logger GUI: Started")
 
@@ -599,6 +600,7 @@ def runGui():
 
     s = MainWindow()
     s.showMaximized()
+    #s.show()
     sys.exit(app.exec_())
 
 if __name__ == '__main__':
