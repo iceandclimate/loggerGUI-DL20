@@ -236,7 +236,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # ----
             ("transducer_top",                  ValueDisplay(self, "Transducer top",                "raw",    "%.0f", True)),
             ("transducer_bottom",               ValueDisplay(self, "Transducer bottom",             "raw",    "%.0f", True)),
-            ("temperature_voltage",             ValueDisplay(self, "Temperature (internal)",       "raw",    "%d", True)),
+            ("temperature_voltage",             ValueDisplay(self, "Temperature (internal)",       "raw",    "%.0f", True)),
             ("button",                          ValueDisplay(self, "Button",                        "state",  "%.0f", True)),
             # ----
             ("heading",                         ValueDisplay(self, "Heading",                     "deg",  "%.1f", True)),
@@ -245,11 +245,11 @@ class MainWindow(QtWidgets.QMainWindow):
             # ----
             ("depth_top",                       ValueDisplay(self, "AtmDepth (top)",                 "m",   "%.2f")),
             ("pressure_top",                    ValueDisplay(self, "Pressure (top)",              "B",   "%.2f", True)),
-            ("temperature_top",                 ValueDisplay(self, "Temperature (top)",           "C","%d", True)),
+            ("temperature_top",                 ValueDisplay(self, "Temperature (top)",           "C","%.2f", True)),
             # ----
             ("depth_bottom",                       ValueDisplay(self, "AtmDepth (bottom)",              "m",   "%.2f")),
             ("pressure_bottom",                    ValueDisplay(self, "Pressure (bottom)",              "B",   "%.2f", True)),
-            ("temperature_bottom",                 ValueDisplay(self, "Temperature (bottom)",           "C","%d", True)),
+            ("temperature_bottom",                 ValueDisplay(self, "Temperature (bottom)",           "C","%.2f", True)),
             # ---- Calculated values ----
             ("delta_pressure",                          ValueDisplay(self, "ΔP (bottom-top)",           "B","%.3f", True)),
         ])

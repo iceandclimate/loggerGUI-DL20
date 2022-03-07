@@ -1,7 +1,5 @@
 import math
 
-
-
 class ParseException(Exception):
     pass
 
@@ -9,7 +7,7 @@ def verify_checksum(message):
     calc_cksum = 0
     for s in message[:-3]:
         calc_cksum ^= ord(s)
-    return (message[-2:] == f'{calc_cksum:02x}')
+    return (message[-2:].lower() == f'{calc_cksum:02x}')
 
 def parse_hpr(message):
     values = message[:-3].split(',')
