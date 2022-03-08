@@ -187,6 +187,7 @@ class ValueDisplay(QtWidgets.QFrame):
         print("Plot: Tracking parameter", self.label)
         if self.parentWidget.activePlot is not None:
             self.parentWidget.activePlot.setLineWidth(0)
+
         self.setLineWidth(1)
         self.parentWidget.activePlot = self
         self.plot()
