@@ -67,16 +67,13 @@ class SerialInputWorker(QtCore.QThread):
             try:
                 line = self.serial.readline()
 
-                if len(line) != 82: # dont use bugged lines
-                    continue
-
-                # cap to 7 bit strings
-                result = ""
-                for char in line:
-                    result += chr(ord(char) & 0x7f)
+                # # cap to 7 bit strings
+                # result = ""
+                # for char in line:
+                #     result += chr(ord(char) & 0x7f)
 
                 #self.emit( QtCore.SIGNAL('update(QString)'), result.rstrip())
-                self.update_signal.emit(result.rstrip())
+                self.update_signal.emit(line.rstrip())
 
             except serial.SerialTimeoutException:
                 pass
