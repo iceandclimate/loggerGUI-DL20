@@ -44,7 +44,6 @@ class SerialInputWorker(QtCore.QThread):
         self.alive = False
         self.port = port
 
-        # COM1:300,E,7,1,CS,DS,CD
         self.serial = serial.Serial(
             self.port,
             baudrate=600,
