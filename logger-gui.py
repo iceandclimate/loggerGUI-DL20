@@ -506,8 +506,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # as a line in the custom encoding format
 
         if line == "":
-            print("WARNING: End of data stream")
-            self.disconnect()
+            #IGNORE EMPTY LINES...
+            #print("WARNING: End of data stream")
+            #self.disconnect()
             return
 
         # first: save a backup, if savefile is selected and recording
