@@ -47,9 +47,9 @@ class SerialInputWorker(QtCore.QThread):
         # COM1:300,E,7,1,CS,DS,CD
         self.serial = serial.Serial(
             self.port,
-            baudrate=300,
-            bytesize=serial.SEVENBITS,
-            parity=serial.PARITY_EVEN,
+            baudrate=600,
+            bytesize=serial.EIGHTBITS,
+            parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
             timeout=5
         )
