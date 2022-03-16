@@ -73,7 +73,7 @@ class SerialInputWorker(QtCore.QThread):
                 #     result += chr(ord(char) & 0x7f)
 
                 #self.emit( QtCore.SIGNAL('update(QString)'), result.rstrip())
-                self.update_signal.emit(line.rstrip())
+                self.update_signal.emit(line.decode(encoding='UTF-8',errors='ignore').rstrip())  
 
             except serial.SerialTimeoutException:
                 pass
