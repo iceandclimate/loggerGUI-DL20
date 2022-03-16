@@ -32,9 +32,8 @@ FILE_SUFFIX_DATA = ".csv"
 FILE_SUFFIX_NOTES = ".txt"
 
 
-def input(
-    q="question",
-):  # the input function in new versions of python apparently does not use stdin.readline. So we override.
+def input(q="question"):
+    # the input function in new versions of python apparently does not use stdin.readline. So we override.
     sys.stdin.q = q
     return sys.stdin.readline()
 
@@ -159,7 +158,7 @@ class ValueDisplay(QtWidgets.QFrame):
         self.label = label
         self.unit = unit
         self.format = format + " %s"
-        self.value = "-"
+        self.value = '-'
         self.history = deque(
             maxlen=MAX_HISTORY
         )  # automatically pops elements when MAX_HISTORY is reached
@@ -169,7 +168,6 @@ class ValueDisplay(QtWidgets.QFrame):
 
         self.valueWidget = QtWidgets.QLabel(self.value)
         self.valueWidget.setFont(QtGui.QFont("mono", 14))
-        self.valueWidget.setText(".")
 
         self.setMinimumWidth(300)
         self.setMaximumWidth(300)
@@ -181,6 +179,8 @@ class ValueDisplay(QtWidgets.QFrame):
         layout.addWidget(self.valueWidget)
         self.setLayout(layout)
         self.setEnabled(enabled)
+        self.set(math.nan)
+
 
     def mouseDoubleClickEvent(self, event):
         self.setActive()
@@ -202,8 +202,8 @@ class ValueDisplay(QtWidgets.QFrame):
         print("Plot: Tracking parameter", self.label)
         if self.parentWidget.activePlot is not None:
             self.parentWidget.activePlot.setLineWidth(0)
-
         self.setLineWidth(1)
+        self.setStyleSheet("background-color: none")
         self.parentWidget.activePlot = self
         self.plot()
 
@@ -237,7 +237,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         y_formatter = pylab.mpl.ticker.ScalarFormatter(useOffset=False)
         self.activePlot = None
-        self.plot = pylab.plot([], [], "r.-", markersize=18, clip_on=False)[0]
+        self.plot = pylab.plot([0,60], [0,1], "r.-", markersize=18, clip_on=False)[0]
         self.plot.set_markerfacecolor((0.8, 0, 0, 1))
         self.plot.set_color((0.8, 0, 0, 0.1))
         self.figure.axes[0].yaxis.set_major_formatter(y_formatter)
@@ -589,7 +589,9 @@ class MainWindow(QtWidgets.QMainWindow):
             print("Recording: Cannot close when recording. Stop recording first!")
             evnt.ignore()
         else:
+            self.disconnect()
             super(MainWindow, self).closeEvent(evnt)
+
 
     def setConsoleColor(self, color):
         p = QtGui.QPalette()
@@ -630,6 +632,7 @@ def runGui():
     s = MainWindow()
     s.showMaximized()
     # s.show()
+
     sys.exit(app.exec_())
 
 
