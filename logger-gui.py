@@ -1,5 +1,7 @@
+"""
 # first order
 #!/usr/bin/env python
+"""
 
 import os
 import os.path
@@ -20,9 +22,9 @@ import workers
 import corrections
 import utilities
 
-MAX_HISTORY = 60 # how many points are saved, 60 = 3 minutes
-Y_OFFSET = 0.1 # offset from sides in plot
-Y_SCALE = 0.1 # maximum graph scale
+MAX_HISTORY = 60  # how many points are saved, 60 = 3 minutes
+Y_OFFSET = 0.1  # offset from sides in plot
+Y_SCALE = 0.1  # maximum graph scale
 
 FILE_SUFFIX_RAW = ".raw"
 FILE_SUFFIX_LOG = ".log"
@@ -30,14 +32,15 @@ FILE_SUFFIX_DATA = ".csv"
 FILE_SUFFIX_NOTES = ".txt"
 
 
-
-def input(q = 'question'): #the input function in new versions of python apparently does not use stdin.readline. So we override.
+def input(
+    q="question",
+):  # the input function in new versions of python apparently does not use stdin.readline. So we override.
     sys.stdin.q = q
     return sys.stdin.readline()
 
 
 # pop up an input-field when reading from stdin
-class ReadlineGUI():
+class ReadlineGUI:
     def __init__(self, parentWidget):
         self.parentWidget = parentWidget
         self.q = "Read"
@@ -46,10 +49,11 @@ class ReadlineGUI():
         self.q = q
 
     def readline(self):
-        text, ok = QtWidgets.QInputDialog.getText(self.parentWidget, '', self.q)
-        retval = str(text) if ok else ''
+        text, ok = QtWidgets.QInputDialog.getText(self.parentWidget, "", self.q)
+        retval = str(text) if ok else ""
         self.parentWidget.log(retval + "\n")
         return retval
+
 
 class OptionsDialog(QtWidgets.QDialog):
     def __init__(self, parent):
@@ -71,7 +75,9 @@ class OptionsDialog(QtWidgets.QDialog):
 
         buttons = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,
-            QtCore.Qt.Horizontal, self)
+            QtCore.Qt.Horizontal,
+            self,
+        )
 
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -115,7 +121,9 @@ class OffsetsDialog(QtWidgets.QDialog):
 
         buttons = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,
-            QtCore.Qt.Horizontal, self)
+            QtCore.Qt.Horizontal,
+            self,
+        )
 
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -135,7 +143,9 @@ class OffsetsDialog(QtWidgets.QDialog):
 
             if abs(value) > 1e-10:
                 print("Offset: setting %s to %f" % (ref, value))
-                self.parentWidget.addNote("*** auto ***: setting offset '%s' to %f" % (ref, value))
+                self.parentWidget.addNote(
+                    "*** auto ***: setting offset '%s' to %f" % (ref, value)
+                )
                 self.parentWidget.offsets[ref] = value
 
         super(OffsetsDialog, self).accept()
@@ -150,13 +160,15 @@ class ValueDisplay(QtWidgets.QFrame):
         self.unit = unit
         self.format = format + " %s"
         self.value = "-"
-        self.history = deque(maxlen=MAX_HISTORY) # automatically pops elements when MAX_HISTORY is reached
+        self.history = deque(
+            maxlen=MAX_HISTORY
+        )  # automatically pops elements when MAX_HISTORY is reached
 
         self.labelWidget = QtWidgets.QLabel(self.label)
-        self.labelWidget.setFont(QtGui.QFont("mono", 9));
+        self.labelWidget.setFont(QtGui.QFont("mono", 9))
 
         self.valueWidget = QtWidgets.QLabel(self.value)
-        self.valueWidget.setFont(QtGui.QFont("mono", 18));
+        self.valueWidget.setFont(QtGui.QFont("mono", 18))
 
         self.setMinimumWidth(300)
         self.setMaximumWidth(300)
@@ -168,7 +180,6 @@ class ValueDisplay(QtWidgets.QFrame):
         layout.addWidget(self.valueWidget)
         self.setLayout(layout)
         self.setEnabled(enabled)
-
 
     def mouseDoubleClickEvent(self, event):
         self.setActive()
@@ -197,11 +208,10 @@ class ValueDisplay(QtWidgets.QFrame):
             data = list(self.history)
             self.parentWidget.plot.set_data(list(range(len(data))), data)
             ymin = math.floor(min(data) / Y_SCALE) * Y_SCALE
-            ymax = math.ceil(max(data) / Y_SCALE)  * Y_SCALE
+            ymax = math.ceil(max(data) / Y_SCALE) * Y_SCALE
             pylab.xlim(0, MAX_HISTORY)
             pylab.ylim(ymin - Y_OFFSET, ymax + Y_OFFSET)
             self.parentWidget.canvas.draw()
-
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -218,58 +228,60 @@ class MainWindow(QtWidgets.QMainWindow):
         # widgets
         self.figure = pylab.figure()
         self.canvas = FigureCanvas(self.figure)
-        #self.toolbar = NavigationToolbar(self.canvas, self)
+        # self.toolbar = NavigationToolbar(self.canvas, self)
 
         y_formatter = pylab.mpl.ticker.ScalarFormatter(useOffset=False)
         self.activePlot = None
-        self.plot = pylab.plot([], [], 'r.-', markersize=18, clip_on=False)[0]
-        self.plot.set_markerfacecolor((.8, 0, 0, 1))
-        self.plot.set_color((.8, 0, 0, .1))
+        self.plot = pylab.plot([], [], "r.-", markersize=18, clip_on=False)[0]
+        self.plot.set_markerfacecolor((0.8, 0, 0, 1))
+        self.plot.set_color((0.8, 0, 0, 0.1))
         self.figure.axes[0].yaxis.set_major_formatter(y_formatter)
 
         pylab.grid(True)
         self.figure.tight_layout()
 
         # value name, ValueDisplay(self, parameter name, parameter unit, parameter format, default enabled)
-        self.readouts = OrderedDict([
-            ("record_number",                   ValueDisplay(self, "Record number",                 "",     "%d",   True)),
+        self.readouts = OrderedDict(
+            [
+                ("record_number", ValueDisplay(self, "Record number", "", "%d", True)),
+                # ----
+                ("transducer_top", ValueDisplay(self, "Transducer top", "raw", "%.0f", True)),
+                ("transducer_bottom", ValueDisplay(self, "Transducer bottom", "raw", "%.0f", True)),
+                ("temperature_voltage", ValueDisplay(self, "Temperature (internal)", "raw", "%.0f", True)),
+                ("button", ValueDisplay(self, "Button", "state", "%.0f", True)),
+                # ----
+                ("heading", ValueDisplay(self, "Heading", "deg", "%.1f", True)),
+                ("pitch", ValueDisplay(self, "Pitch", "deg", "%.2f", True)),
+                ("roll", ValueDisplay(self, "Roll", "deg", "%.2f", True)),
+                # ----
+                ("depth_top", ValueDisplay(self, "AtmDepth (top)", "m", "%.2f")),
+                ("pressure_top", ValueDisplay(self, "Pressure (top)", "B", "%.2f", True)),
+                ("temperature_top", ValueDisplay(self, "Temperature (top)", "C", "%.2f", True)),
+                # ----
+                ("depth_bottom", ValueDisplay(self, "AtmDepth (bottom)", "m", "%.2f")),
+                ("pressure_bottom", ValueDisplay(self, "Pressure (bottom)", "B", "%.2f", True)),
+                ("temperature_bottom", ValueDisplay(self, "Temperature (bottom)", "C", "%.2f", True)),
+                # ---- Calculated values ----
+                ("delta_pressure", ValueDisplay(self, "ΔP (bottom-top)", "B", "%.3f", True)),
+            ]
+        )
 
-            # ----
-            ("transducer_top",                  ValueDisplay(self, "Transducer top",                "raw",    "%.0f", True)),
-            ("transducer_bottom",               ValueDisplay(self, "Transducer bottom",             "raw",    "%.0f", True)),
-            ("temperature_voltage",             ValueDisplay(self, "Temperature (internal)",       "raw",    "%.0f", True)),
-            ("button",                          ValueDisplay(self, "Button",                        "state",  "%.0f", True)),
-            # ----
-            ("heading",                         ValueDisplay(self, "Heading",                     "deg",  "%.1f", True)),
-            ("pitch",                           ValueDisplay(self, "Pitch",                       "deg",  "%.2f", True)),
-            ("roll",                            ValueDisplay(self, "Roll",                        "deg",  "%.2f", True)),
-            # ----
-            ("depth_top",                       ValueDisplay(self, "AtmDepth (top)",                 "m",   "%.2f")),
-            ("pressure_top",                    ValueDisplay(self, "Pressure (top)",              "B",   "%.2f", True)),
-            ("temperature_top",                 ValueDisplay(self, "Temperature (top)",           "C","%.2f", True)),
-            # ----
-            ("depth_bottom",                       ValueDisplay(self, "AtmDepth (bottom)",              "m",   "%.2f")),
-            ("pressure_bottom",                    ValueDisplay(self, "Pressure (bottom)",              "B",   "%.2f", True)),
-            ("temperature_bottom",                 ValueDisplay(self, "Temperature (bottom)",           "C","%.2f", True)),
-            # ---- Calculated values ----
-            ("delta_pressure",                          ValueDisplay(self, "ΔP (bottom-top)",           "B","%.3f", True)),
-        ])
-
-        self.offsets = OrderedDict([
-            ("depth_top", 0.0),
-            ("depth_bottom", 0.0),
-            ("temperature_top", 0),
-            ("temperature_bottom", 0),
-            ("pressure_top", 0),
-            ("pressure_bottom", 0),
-
-        ])
+        self.offsets = OrderedDict(
+            [
+                ("depth_top", 0.0),
+                ("depth_bottom", 0.0),
+                ("temperature_top", 0),
+                ("temperature_bottom", 0),
+                ("pressure_top", 0),
+                ("pressure_bottom", 0),
+            ]
+        )
 
         # setup console
         self.console = QtWidgets.QTextEdit()
         self.console.setReadOnly(True)
         self.console.setTextColor(QtGui.QColor("white"))
-        self.console.setFont(QtGui.QFont("mono", 10));
+        self.console.setFont(QtGui.QFont("mono", 10))
         self.setConsoleColor("black")
         self.console.setFixedHeight(150)
 
@@ -285,7 +297,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.valuebox = QtWidgets.QVBoxLayout()
         graphbox = QtWidgets.QVBoxLayout()
         graphbox.addWidget(self.canvas)
-        #graphbox.addWidget(self.toolbar)
+        # graphbox.addWidget(self.toolbar)
         topbox = QtWidgets.QHBoxLayout()
         topbox.addLayout(graphbox)
         topbox.addLayout(self.valuebox)
@@ -293,33 +305,31 @@ class MainWindow(QtWidgets.QMainWindow):
         box.addLayout(topbox)
         box.addWidget(self.console)
 
-
         # menubar
         self.menubar = self.menuBar()
-        self.fileMenu = self.menubar.addMenu('&File')
-        self.actionMenu = self.menubar.addMenu('&Action')
-        self.trackMenu = self.menubar.addMenu('&Track')
+        self.fileMenu = self.menubar.addMenu("&File")
+        self.actionMenu = self.menubar.addMenu("&Action")
+        self.trackMenu = self.menubar.addMenu("&Track")
 
-        connectSerialAction = QtWidgets.QAction('Connect: Serial Port...', self)
-        connectSerialAction.setShortcut('Ctrl+O')
+        connectSerialAction = QtWidgets.QAction("Connect: Serial Port...", self)
+        connectSerialAction.setShortcut("Ctrl+O")
         connectSerialAction.triggered.connect(self.connectSerial)
 
-        connectFileAction = QtWidgets.QAction('Connect: File (Replay)...', self)
-        connectFileAction.setShortcut('Ctrl+I')
+        connectFileAction = QtWidgets.QAction("Connect: File (Replay)...", self)
+        connectFileAction.setShortcut("Ctrl+I")
         connectFileAction.triggered.connect(self.connectFile)
 
-        disconnectAction = QtWidgets.QAction('Disconnect...', self)
+        disconnectAction = QtWidgets.QAction("Disconnect...", self)
         disconnectAction.triggered.connect(self.disconnect)
 
-        saveFileAction = QtWidgets.QAction('Set Save File...', self)
-        saveFileAction.setShortcut('Ctrl+S')
+        saveFileAction = QtWidgets.QAction("Set Save File...", self)
+        saveFileAction.setShortcut("Ctrl+S")
         saveFileAction.triggered.connect(self.setSaveFile)
-        saveCloseFileAction = QtWidgets.QAction('Close Save File', self)
+        saveCloseFileAction = QtWidgets.QAction("Close Save File", self)
         saveCloseFileAction.triggered.connect(self.closeSaveFile)
 
-
-        exitAction = QtWidgets.QAction('Exit', self)
-        exitAction.setShortcut('Ctrl+Q')
+        exitAction = QtWidgets.QAction("Exit", self)
+        exitAction.setShortcut("Ctrl+Q")
         exitAction.triggered.connect(self.close)
 
         self.fileMenu.addAction(connectSerialAction)
@@ -331,19 +341,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fileMenu.addSeparator()
         self.fileMenu.addAction(exitAction)
 
-        toggleRecordingAction = QtWidgets.QAction('Record', self, checkable=True)
-        toggleRecordingAction.setShortcut('Ctrl+R')
+        toggleRecordingAction = QtWidgets.QAction("Record", self, checkable=True)
+        toggleRecordingAction.setShortcut("Ctrl+R")
         toggleRecordingAction.triggered.connect(self.toggleRecording)
 
-        addNoteAction = QtWidgets.QAction('Add note...', self)
-        addNoteAction.setShortcut('Ctrl+N')
+        addNoteAction = QtWidgets.QAction("Add note...", self)
+        addNoteAction.setShortcut("Ctrl+N")
         addNoteAction.triggered.connect(self.addNote)
 
-        optionsAction = QtWidgets.QAction('Options...', self)
+        optionsAction = QtWidgets.QAction("Options...", self)
         optionsAction.triggered.connect(self.showOptions)
 
-
-        offsetsAction = QtWidgets.QAction('Offsets...', self)
+        offsetsAction = QtWidgets.QAction("Offsets...", self)
         offsetsAction.triggered.connect(self.showOffsets)
 
         self.actionMenu.addAction(toggleRecordingAction)
@@ -367,7 +376,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         print("Logger GUI: Started")
 
-
     def updateValueGui(self):
 
         self.trackMenu.clear()
@@ -378,13 +386,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 idx += 1
                 action = QtWidgets.QAction(self.readouts[readout].label, self)
                 if idx < 10:
-                    action.setShortcut('Ctrl+%d' % (idx))
+                    action.setShortcut("Ctrl+%d" % (idx))
                 action.triggered.connect(self.readouts[readout].setActive)
                 self.trackMenu.addAction(action)
 
-
         self.valuebox.update()
-
 
     def connectSerial(self):
 
@@ -440,16 +446,28 @@ class MainWindow(QtWidgets.QMainWindow):
         print("File save: Selected filename:", filename)
 
         if os.path.isfile(filename + FILE_SUFFIX_RAW):
-            print("File save WARNING: raw data file already exists at", filename + FILE_SUFFIX_RAW)
+            print(
+                "File save WARNING: raw data file already exists at",
+                filename + FILE_SUFFIX_RAW,
+            )
 
         if os.path.isfile(filename + FILE_SUFFIX_LOG):
-            print("File save WARNING: log data file already exists at", filename + FILE_SUFFIX_LOG)
+            print(
+                "File save WARNING: log data file already exists at",
+                filename + FILE_SUFFIX_LOG,
+            )
 
         if os.path.isfile(filename + FILE_SUFFIX_NOTES):
-            print("File save WARNING: notes data file already exists at", filename + FILE_SUFFIX_NOTES)
+            print(
+                "File save WARNING: notes data file already exists at",
+                filename + FILE_SUFFIX_NOTES,
+            )
 
         if os.path.isfile(filename + FILE_SUFFIX_LOG):
-            print("File save WARNING: output data file already exists at", filename + FILE_SUFFIX_DATA)
+            print(
+                "File save WARNING: output data file already exists at",
+                filename + FILE_SUFFIX_DATA,
+            )
 
         self.savefilename = filename
 
@@ -464,13 +482,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
             hasErrors = False
 
-
             if self.inputworker is None:
-                print("Recording WARNING: no input source is selected, nothing will be recorded")
+                print(
+                    "Recording WARNING: no input source is selected, nothing will be recorded"
+                )
                 hasErrors = True
 
             if self.savefilename is None:
-                print("Recording WARNING: save file is not chosen, nothing will be saved to disk")
+                print(
+                    "Recording WARNING: save file is not chosen, nothing will be saved to disk"
+                )
                 hasErrors = True
 
             if hasErrors:
@@ -483,7 +504,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def addNote(self, note=None):
         if self.savefilename is not None:
-            last_record = str(self.last_record) # save when note is being entered
+            last_record = str(self.last_record)  # save when note is being entered
             if note is None:
                 note = input("Note text (for record %s): ", last_record)
             tofile = "%s: %s\n" % (last_record, note)
@@ -506,9 +527,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # as a line in the custom encoding format
 
         if line == "":
-            #IGNORE EMPTY LINES...
-            #print("WARNING: End of data stream")
-            #self.disconnect()
+            # IGNORE EMPTY LINES...
+            # print("WARNING: End of data stream")
+            # self.disconnect()
             return
 
         # first: save a backup, if savefile is selected and recording
@@ -553,10 +574,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def setInputWorker(self, worker):
         self.disconnect()
         self.inputworker = worker
-        self.inputworker.update_signal.connect( self.newData )
-        #self.connect(self.inputworker, QtCore.SIGNAL("update(QString)"), self.newData )
-        #self.get_thread.update.connect(self.newData)
-
+        self.inputworker.update_signal.connect(self.newData)
+        # self.connect(self.inputworker, QtCore.SIGNAL("update(QString)"), self.newData )
+        # self.get_thread.update.connect(self.newData)
 
     def closeEvent(self, evnt):
         if self.recording:
@@ -574,9 +594,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def log(self, text):
         sys.stdin.question(text)
         self.console.setText(self.console.toPlainText() + text)
-        cursor = QtGui.QTextCursor(self.console.textCursor());
-        cursor.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.MoveAnchor);
-        self.console.setTextCursor(cursor);
+        cursor = QtGui.QTextCursor(self.console.textCursor())
+        cursor.movePosition(QtGui.QTextCursor.End, QtGui.QTextCursor.MoveAnchor)
+        self.console.setTextCursor(cursor)
         self.console.ensureCursorVisible()
         # save to logfile
         if self.savefilename is not None:
@@ -587,6 +607,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def logErr(self, text):
         self.streams[2].write(text)
         self.log(text)
+
 
 def runGui():
     app = QtWidgets.QApplication([])
@@ -602,11 +623,11 @@ def runGui():
 
     s = MainWindow()
     s.showMaximized()
-    #s.show()
+    # s.show()
     sys.exit(app.exec_())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # change directory to home dir
     os.chdir(os.path.expanduser("~"))
     runGui()
-
