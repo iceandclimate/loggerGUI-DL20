@@ -152,7 +152,7 @@ class OffsetsDialog(QtWidgets.QDialog):
 
 
 class ValueDisplay(QtWidgets.QFrame):
-    def __init__(self, parentWidget, label, unit, format="%d", enabled=False):
+    def __init__(self, parentWidget, label, unit, format="%.2f", enabled=False):
         super(ValueDisplay, self).__init__()
 
         self.parentWidget = parentWidget
@@ -165,10 +165,11 @@ class ValueDisplay(QtWidgets.QFrame):
         )  # automatically pops elements when MAX_HISTORY is reached
 
         self.labelWidget = QtWidgets.QLabel(self.label)
-        self.labelWidget.setFont(QtGui.QFont("mono", 9))
+        self.labelWidget.setFont(QtGui.QFont("mono", 8))
 
         self.valueWidget = QtWidgets.QLabel(self.value)
-        self.valueWidget.setFont(QtGui.QFont("mono", 18))
+        self.valueWidget.setFont(QtGui.QFont("mono", 14))
+        self.valueWidget.setText(".")
 
         self.setMinimumWidth(300)
         self.setMaximumWidth(300)
@@ -191,7 +192,10 @@ class ValueDisplay(QtWidgets.QFrame):
     def set(self, value):
         self.value = value
         self.history.append(value)
-        self.valueWidget.setText(self.format % (self.value, self.unit))
+        if math.isnan(value):
+            self.valueWidget.setText("n/a")
+        else:
+            self.valueWidget.setText(self.format % (self.value, self.unit))
         self.plot()
 
     def setActive(self):
@@ -205,12 +209,13 @@ class ValueDisplay(QtWidgets.QFrame):
 
     def plot(self):
         if self.parentWidget.activePlot is self:
-            data = list(self.history)
+            data = pylab.array(self.history)
             self.parentWidget.plot.set_data(list(range(len(data))), data)
-            ymin = math.floor(min(data) / Y_SCALE) * Y_SCALE
-            ymax = math.ceil(max(data) / Y_SCALE) * Y_SCALE
             pylab.xlim(0, MAX_HISTORY)
-            pylab.ylim(ymin - Y_OFFSET, ymax + Y_OFFSET)
+            if not pylab.all(pylab.isnan(data)):
+                ymin = pylab.floor(pylab.nanmin(data) / Y_SCALE) * Y_SCALE
+                ymax = pylab.ceil(pylab.nanmax(data) / Y_SCALE) * Y_SCALE
+                pylab.ylim(ymin - Y_OFFSET, ymax + Y_OFFSET)
             self.parentWidget.canvas.draw()
 
 
@@ -265,6 +270,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 ("delta_pressure", ValueDisplay(self, "ΔP (bottom-top)", "B", "%.3f", True)),
             ]
         )
+        self.readouts["pressure_top"].setActive()
 
         self.offsets = OrderedDict(
             [
