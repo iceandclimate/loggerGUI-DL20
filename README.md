@@ -9,9 +9,18 @@ Known dependencies
 * PyQT5
 * matplotlib
 * numpy
-
+* pyserial
 
 See also:
 https://github.com/Aarhus-University-MPE/DL20
 
 
+
+
+installation instructions:
+- miniconda3
+- conda install -c conda-forge mamba
+- mamba install -c conda-forge pyqt matplotlib numpy
+- mamba install -c conda-forge pyserial
+- mamba install -c conda-forge pip
+- pip install minimalmodbus

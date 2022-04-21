@@ -21,6 +21,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 import workers
 import corrections
 import utilities
+from codex560 import Codex560
 
 MAX_HISTORY = 60  # how many points are saved, 60 = 3 minutes
 Y_OFFSET = 0.1  # offset from sides in plot
@@ -229,6 +230,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.savefilename = None
         self.inputworker = None
         self.last_record = "####"
+        self.encoder = None
 
         # widgets
         self.figure = pylab.figure()
@@ -249,10 +251,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.readouts = OrderedDict(
             [
                 ("record_number", ValueDisplay(self, "Record number", "", "%d", True)),
+                ("depth_winch", ValueDisplay(self, "Depth winch", "m", "%.2f", True)),
                 # ----
                 ("transducer_top", ValueDisplay(self, "Transducer top", "raw", "%.0f", True)),
                 ("transducer_bottom", ValueDisplay(self, "Transducer bottom", "raw", "%.0f", True)),
-                ("temperature_voltage", ValueDisplay(self, "Temperature (internal)", "raw", "%.0f", True)),
+                ("temperature_voltage", ValueDisplay(self, "Temperature (internal)", "raw", "%.0f")),
                 ("button", ValueDisplay(self, "Button", "state", "%.0f", True)),
                 # ----
                 ("heading", ValueDisplay(self, "Heading", "deg", "%.1f", True)),
@@ -260,8 +263,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 ("roll", ValueDisplay(self, "Roll", "deg", "%.2f", True)),
                 # ----
                 ("depth_top", ValueDisplay(self, "AtmDepth (top)", "m", "%.2f")),
-                ("pressure_top", ValueDisplay(self, "Pressure (top)", "B", "%.2f", True)),
-                ("temperature_top", ValueDisplay(self, "Temperature (top)", "C", "%.2f", True)),
+                ("pressure_top", ValueDisplay(self, "Pressure (top)", "B", "%.2f")),
+                ("temperature_top", ValueDisplay(self, "Temperature (top)", "C", "%.2f")),
                 # ----
                 ("depth_bottom", ValueDisplay(self, "AtmDepth (bottom)", "m", "%.2f")),
                 ("pressure_bottom", ValueDisplay(self, "Pressure (bottom)", "B", "%.2f", True)),
@@ -317,6 +320,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.actionMenu = self.menubar.addMenu("&Action")
         self.trackMenu = self.menubar.addMenu("&Track")
 
+        connectEncoderAction = QtWidgets.QAction('Connect: Encoder...', self)
+        connectEncoderAction.setShortcut('Ctrl+E')
+        connectEncoderAction.triggered.connect(self.connectEncoder)
+
         connectSerialAction = QtWidgets.QAction("Connect: Serial Port...", self)
         connectSerialAction.setShortcut("Ctrl+O")
         connectSerialAction.triggered.connect(self.connectSerial)
@@ -339,6 +346,7 @@ class MainWindow(QtWidgets.QMainWindow):
         exitAction.triggered.connect(self.close)
 
         self.fileMenu.addAction(connectSerialAction)
+        self.fileMenu.addAction(connectEncoderAction)
         self.fileMenu.addAction(connectFileAction)
         self.fileMenu.addAction(disconnectAction)
         self.fileMenu.addSeparator()
@@ -398,11 +406,27 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.valuebox.update()
 
+    def connectEncoder(self):
+        ports = utilities.enumerate_serial()
+        print("Encoder: Detected the %d serial ports on the system" % len(ports))
+        if len(ports):
+            print("Found:", ", ".join(ports))
+
+        try:
+            port = input("Enter port name: ")
+        except EOFError:
+            print("Encoder: User cancelled")
+            return
+
+        print("Encoder: Using port:", port)
+        self.encoder = Codex560(port, 1)
+
+        print("Encoder: Connected")
+
     def connectSerial(self):
 
         ports = utilities.enumerate_serial()
         print("Serial: Detected the %d serial ports on the system" % len(ports))
-
         if len(ports):
             print("Found:", ", ".join(ports))
 
@@ -545,6 +569,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # second: convert the line into dict, using the data parser and apply offsets
         record = corrections.parseRecord(line, self.offsets)
+
+        # second and a half: get the current depth and add it to the record
+        if (self.encoder):
+            try:
+                record['depth_winch'] = float(self.encoder.get_main_counter()) * (-1.0)
+            except:
+                pass
 
         # third: save the coverted data, if savefile is selected and recording
         if self.recording and self.savefilename is not None:

@@ -66,10 +66,14 @@ def parseRecord(line, offsets):
     # convert all to floats.
     record.update((k, robust_float(v)) for k, v in record.items())
 
+    # add room for external encoder read-out
+    record["depth_winch"] = math.nan
+
     # add calculated terms
 
     record["delta_pressure"] = record["pressure_bottom"] - record["pressure_top"]
 
     # TODO: apply calibrations to raw measurements.
+
 
     return record
