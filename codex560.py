@@ -158,7 +158,9 @@ class Codex560( minimalmodbus.Instrument ):
 ########################
 
 if __name__ == '__main__':
+
     import redis
+    redis_conn = redis.StrictRedis(host=REDIS_HOST)
     print("Winch encoder")
     try:
         encoderDisplay = Codex560(sys.argv[1], slaveaddress)
@@ -176,9 +178,9 @@ if __name__ == '__main__':
                 encoderDisplay = None
 
         if encoderDisplay is None:
+            redis_conn.set("depth-encoder", '{"depth": -9999, "velocity": -9999}')
             sys.exit("No port found for Kübler CODEX-560 encoder!")
 
-    redis_conn = redis.StrictRedis(host=REDIS_HOST)
 
     #When we the drill is moving slowly then we need to make a moving average because the depthencoder only gives us cm-resolution.
     #w is a constant that controls how much "memory" is in the system when we calculate the velocity.
